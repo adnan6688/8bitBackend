@@ -1,43 +1,22 @@
-// {
-//   "compilerOptions": {
-//     "outDir": "./api",
-//     "module": "esnext",
-//     "moduleResolution": "bundler",
-//     "target": "es2023",
-//     "types": [
-//       "node"
-//     ],
-//     "sourceMap": true,
-//     "declaration": true,
-//     "declarationMap": true,
-//     "noUncheckedIndexedAccess": true,
-//     "strict": true,
-//     "isolatedModules": true,
-//     "noUncheckedSideEffectImports": true,
-//     "moduleDetection": "force",
-//     "skipLibCheck": true
-//   },
-//   // "include": ["src/**/*"], 
-//   "exclude": ["node_modules", "api" ]
-// }
-
-
 {
   "compilerOptions": {
     "outDir": "./api",
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "es2023",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
-    "noEmit": true /* tsup নিজেই ফাইল এমিট করবে, তাই আলাদা করে দরকার নেই */
+    "skipLibCheck": true
   },
   "include": ["src/**/*"], 
-  "exclude": ["node_modules", "api"]
+  // "exclude": ["node_modules", "api" ]
 }
