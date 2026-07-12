@@ -4,19 +4,16 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "es2023",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": true /* tsup নিজেই কম্পাইল করবে, টাইপস্ক্রিপ্টের আলাদা ফাইল তৈরির দরকার নেই */
   },
   "include": ["src/**/*"], 
-  // "exclude": ["node_modules", "api" ]
+  "exclude": ["node_modules", "api", "generated"] /* কমেন্ট সরিয়ে এটি যুক্ত করা হয়েছে */
 }
