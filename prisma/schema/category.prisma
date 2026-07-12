@@ -1,0 +1,16 @@
+model Category {
+    id       String  @id @default(ulid())
+    type     CatType
+    name     String  @db.VarChar(40)
+    isDelete Boolean @default(false)
+
+    createdById String
+    createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    // relations
+    games     Game[]
+    foods     Food[]
+
+    @@unique([type, name])
+}

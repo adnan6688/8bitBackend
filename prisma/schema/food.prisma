@@ -1,0 +1,30 @@
+model Food {
+    id                String   @id @default(ulid())
+    name              String   @db.VarChar(200)
+    price             Float
+    images            String[]
+    delivery_time     Int
+    delivery_fee      Int      @default(0)
+    short_description String   @db.VarChar(500)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    isDisCount         Boolean @default(false)
+    disCountParcentage Int?
+
+    createdById String
+    creadtedBy  User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+
+    
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+
+    // realtions 
+    CartItems CartITem[]
+
+    @@index([isDisCount])
+    @@index([createdById])
+}

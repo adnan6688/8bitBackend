@@ -1,0 +1,41 @@
+model Game {
+    id String @id @default(ulid())
+
+    name               String     @db.VarChar(50)
+    price              Float
+    images             String[]
+    description        String     @db.VarChar(500)
+    status             GameStatus @default(AVAILABLE)
+    createdAt          DateTime   @default(now())
+    updatedAt          DateTime   @updatedAt
+    isDiscount         Boolean    @default(false)
+    disCountParcenTage Int?
+    disCountPrice      Float?
+
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+    createdById String
+    creadtedBy  User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    // relations 
+    schedules GameSchedule[]
+    CartItems CartITem[]
+
+    @@index([categoryId])
+    @@index([createdById])
+}
+
+model GameSchedule {
+    id String @id @default(ulid())
+
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+    day      WeekDay
+    openTime String
+    endTime  String
+
+    @@index([gameId])
+    @@index([day])
+}

@@ -1,0 +1,13 @@
+model Cart {
+    id String @id @default(ulid())
+
+    createdAt DateTime @default(now())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // relations
+    CartItems CartITem[]
+
+    
+}

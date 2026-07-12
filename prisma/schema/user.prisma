@@ -1,0 +1,22 @@
+model User {
+    id         String     @id @default(uuid())
+    firstName  String
+    lastName   String
+    email      String     @unique
+    password   String
+    status     UserStatus @default(ACTIVE)
+    role       UserRole   @default(USER)
+    image      String?
+    publicId   String?
+    isVerified Boolean    @default(false)
+    phone      String     @unique
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // relations 
+    categories Category[]
+    games      Game[]
+    foods      Food[]
+    cart       Cart?
+}

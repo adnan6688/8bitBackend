@@ -1,0 +1,35 @@
+
+
+
+enum UserStatus {
+    ACTIVE 
+    INACTIVE
+}
+
+enum UserRole {
+    ADMIN 
+    USER
+    SUB_ADMIN
+}
+
+
+enum CatType {
+    FOOD 
+    GAME
+}
+
+
+enum WeekDay {
+  SATURDAY
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+enum GameStatus {
+    AVAILABLE
+    UNAVAILABLE
+}
