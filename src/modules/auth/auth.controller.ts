@@ -51,6 +51,27 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
 })
 
 
+
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'none',
+        maxAge: 1000 * 60 * 60 * 24 // 24 hour or one day
+    })
+
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'none',
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    })
+
+})
+
 export const authController = {
-    login
+    login,
+    logout
 }

@@ -19,4 +19,6 @@ route.get('/getMe', auth(...Object.values(UserRole)), userController.getMe)
 
 route.patch('/updateUser',auth(...Object.values(UserRole)), upload.single("image"), validateRequest(updateUserSchma),  userController.updateUser)
 
+
+
 export const userRoutes = route
