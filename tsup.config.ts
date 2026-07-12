@@ -12,7 +12,7 @@ export default defineConfig({
 
     target: "esnext",
 
-    outDir: "dist",
+    outDir: "api",
 
     clean: true,
 

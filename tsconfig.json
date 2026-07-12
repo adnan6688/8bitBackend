@@ -12,8 +12,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "noEmit": true /* tsup নিজেই কম্পাইল করবে, টাইপস্ক্রিপ্টের আলাদা ফাইল তৈরির দরকার নেই */
+    "noEmit": true 
   },
   "include": ["src/**/*"], 
-  "exclude": ["node_modules", "api", "generated"] /* কমেন্ট সরিয়ে এটি যুক্ত করা হয়েছে */
+  "exclude": ["node_modules", "api", "generated"] 
 }
