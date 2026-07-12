@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsup",
     "vercel-build": "prisma generate && tsup",
-    "start": "node api/server.js"
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
