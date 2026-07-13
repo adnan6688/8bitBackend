@@ -16,3 +16,20 @@ export interface IFood {
     categoryId: string
 
 }
+
+export interface IFoodUPdate {
+    name?: string,
+    price?: number,
+    images?: string[],
+    delivery_time?: number,
+    delivery_fee?: number,
+    short_description?: string,
+
+    isDisCount?: boolean,
+    disCountParcentage?: number,
+    disCountPrice?: number,
+
+
+    categoryId?: string
+
+}

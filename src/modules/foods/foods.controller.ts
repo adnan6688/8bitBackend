@@ -40,10 +40,10 @@ const addFoods = catchAsync(async (req: Request, res: Response, next: NextFuncti
         createdById: req?.user?.id as string
     };
 
- 
+
     foodData.price = Number(foodData.price) || 0;
-    foodData.delivery_time = Number(foodData.delivery_time) || 0; 
-    foodData.delivery_fee = Number(foodData.delivery_fee) || 0;   
+    foodData.delivery_time = Number(foodData.delivery_time) || 0;
+    foodData.delivery_fee = Number(foodData.delivery_fee) || 0;
 
 
     foodData.isDisCount = String(foodData.isDiscount) === 'true' || foodData.isDisCount === true;
@@ -77,16 +77,104 @@ const addFoods = catchAsync(async (req: Request, res: Response, next: NextFuncti
 
 const getFoods = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+
+    const searchTerm = req.query?.searchTerm || ""
+    const options = {
+        page: req?.query.page,
+        limit: req?.query.limit,
+        sortBy: req.query?.sortBy,
+        sortOrder: req.query.sortOrder
+    }
+
+    const data = await fooodService.getFoods(options, searchTerm as string)
+    sendResponse(res, {
+        data,
+        message: 'Foods fetched successfully!',
+        success: true,
+        statusCode: httpStatus.OK
+    })
+
 })
 
 
-const updateFoods = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-})
+
+export const updateFoods = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { foodId } = req.params;
+
+    if (!foodId) {
+        throw new Error('Food Id must be added!')
+    }
+
+    const existingFood = await prisma.food.findUnique({ where: { id: foodId as string } });
+
+    if (!existingFood) {
+        throw new Error('Food not found!');
+    }
+
+
+    const files = req.files as Express.Multer.File[];
+    let finalImages: string[] = existingFood.images;
+
+
+    if (files && files.length > 0) {
+        const imageUrls: string[] = [];
+        for (const file of files) {
+            const uploadResult = await cloudinaryUpload(file.buffer);
+            imageUrls.push(uploadResult.secure_url);
+        }
+
+        finalImages = [...existingFood.images, ...imageUrls];
+    }
+
+
+    const updatePayload = {
+        ...req.body,
+        images: finalImages
+    };
+
+
+    const finalPercentage = updatePayload.disCountParcentage !== undefined
+        ? updatePayload.disCountParcentage
+        : existingFood?.disCountParcentage;
+
+    if (updatePayload.isDisCount === true || (updatePayload.isDisCount === undefined && existingFood.isDisCount)) {
+        const activePrice = updatePayload.price || existingFood.price;
+        updatePayload.discountPrice = activePrice - (activePrice * (finalPercentage / 100));
+    } else if (updatePayload.isDisCount === false) {
+
+        updatePayload.discountPrice = 0;
+        updatePayload.disCountParcentage = 0;
+    }
+
+
+    const data = await fooodService.updateFoods(updatePayload, foodId as string);
+
+
+    sendResponse(res, {
+        success: true,
+        message: 'Food update successfully!',
+        data: data,
+        statusCode: httpStatus.OK
+    });
+});
+
+
+
 
 const foodDetails = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-
+    const foodId = req.params.foodId as string
+    if (!foodId) {
+        throw new Error('Food Id not found!')
+    }
+    const data = await fooodService.foodDetails(foodId)
+    sendResponse(res, {
+        data,
+        message: 'Food fetched successfully!',
+        success: true,
+        statusCode: httpStatus.OK
+    })
 })
 
 

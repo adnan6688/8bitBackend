@@ -37,5 +37,61 @@ export const addFoodZodSchema = z.object({
     categoryId: z.string({ message: "Category ID is required" })
 });
 
-// Optional: Extract the TypeScript type directly from the schema to verify it matches IFood
-export type FoodSchemaType = z.infer<typeof addFoodZodSchema>;
+
+
+export const updateFoodZodSchema = z.object({
+    name: z.string()
+        .min(3, { message: "Name must be at least 3 characters long" })
+        .max(100, { message: "Name cannot exceed 100 characters" })
+        .optional(),
+
+    price: z.coerce.number()
+        .min(0, { message: "Price cannot be negative" })
+        .optional(),
+
+    images: z.string().optional(),
+
+    delivery_time: z.coerce.number()
+        .min(1, { message: "Delivery time must be at least 1 minute" })
+        .optional(),
+
+    delivery_fee: z.coerce.number()
+        .min(0, { message: "Delivery fee cannot be negative" })
+        .optional(),
+
+    short_description: z.string()
+        .min(10, { message: "Description must be at least 10 characters long" })
+        .max(250, { message: "Description cannot exceed 250 characters" })
+        .optional(),
+
+    isDisCount: z.preprocess(
+        (val) => {
+            if (val === "false") return false;
+            if (val === "true") return true;
+            return val;
+        },
+        z.boolean({ message: "Discount status must be a boolean" })
+    ).optional(),
+
+    disCountParcentage: z.coerce.number()
+        .int({ message: "Percentage must be a whole number" })
+        .min(0, { message: "Discount percentage cannot be less than 0" })
+        .max(100, { message: "Discount percentage cannot exceed 100" })
+        .optional(),
+
+    disCountPrice: z.coerce.number()
+        .min(0, { message: "Discount price cannot be negative" })
+        .optional(),
+
+    categoryId: z.string()
+        .optional()
+}).refine((data) => {
+
+    if (data.isDisCount === true && (data.disCountParcentage === undefined || data.disCountParcentage === 0)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "If discount is active, discount percentage must be provided and greater than 0",
+    path: ["disCountParcentage"],
+});

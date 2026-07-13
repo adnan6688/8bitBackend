@@ -62,7 +62,7 @@ const addGames = catchAsync(async (req: Request, res: Response, next: NextFuncti
     const game = await gameService.addGames(gameData)
 
 
-    
+
     sendResponse(res, {
         success: true,
         data: game,
@@ -85,9 +85,85 @@ const gamesDetails = catchAsync(async (req: Request, res: Response, next: NextFu
 })
 
 
-const updateGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-})
+export const updateGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { gameId } = req.params;
+
+    if (!gameId) {
+        throw new Error('Game Id must be added!');
+    }
+
+    // ১. ডাটাবেজে গেমটি আছে কিনা চেক করা
+    const existingGame = await prisma.game.findUnique({
+        where: { id: gameId as string },
+        include: { schedules: true }
+    });
+
+    if (!existingGame) {
+        throw new Error('Game not found!');
+    }
+
+    // ২. Multer ফাইল আপলোড হ্যান্ডেল করা (Cloudinary)
+    const files = req.files as Express.Multer.File[];
+    let finalImages: string[] = existingGame.images;
+
+    if (files && files.length > 0) {
+        const imageUrls: string[] = [];
+        for (const file of files) {
+            const uploadResult = await cloudinaryUpload(file.buffer); // আপনার ক্লাউডিনারি ফাংশন
+            imageUrls.push(uploadResult.secure_url);
+        }
+        // আগের ইমেজের সাথে নতুন ইমেজ যোগ করা
+        finalImages = [...existingGame.images, ...imageUrls];
+    }
+
+    // ৩. রিকোয়েস্ট পে-লোড তৈরি করা
+    const updatePayload = {
+        ...req.body,
+        images: finalImages
+    };
+
+    // ৪. ফর্ম-ডেটা দিয়ে schedules পাঠালে সেটি string থাকে, তাই JSON Parse করে অ্যারেতে কনভার্ট করা
+    if (updatePayload.schedules && typeof updatePayload.schedules === 'string') {
+        updatePayload.schedules = JSON.parse(updatePayload.schedules);
+    }
+
+    // ৫. ডিসকাউন্ট ক্যালকুলেশন লজিক (হুবহু ফুড এর মতো)
+    const finalPercentage = updatePayload.disCountParcenTage !== undefined
+        ? Number(updatePayload.disCountParcenTage)
+        : existingGame?.disCountParcenTage;
+
+    if (updatePayload.isDiscount === true || updatePayload.isDiscount === "true" || (updatePayload.isDiscount === undefined && existingGame.isDiscount)) {
+        const activePrice = updatePayload.price ? Number(updatePayload.price) : existingGame.price;
+        updatePayload.disCountPrice = activePrice - (activePrice * (finalPercentage as  number / 100));
+        updatePayload.isDiscount = true; // নিশ্চিত করার জন্য বুনিয়ান করা
+    } else if (updatePayload.isDiscount === false || updatePayload.isDiscount === "false") {
+        updatePayload.disCountPrice = 0;
+        updatePayload.disCountParcenTage = 0;
+        updatePayload.isDiscount = false;
+    }
+
+
+    
+    // কোয়ার্স করা ফিল্ডগুলো নাম্বার ফরম্যাটে রাখা (ফর্ম ডেটা অনেক সময় স্ট্রিং পাঠায়)
+    if (updatePayload.price) updatePayload.price = Number(updatePayload.price);
+    if (updatePayload.disCountParcenTage) updatePayload.disCountParcenTage = Number(updatePayload.disCountParcenTage);
+
+    // ৬. সার্ভিস কল করে ডাটাবেজ আপডেট
+    const data = await gameService.updateGamesNew(updatePayload, gameId as string);
+
+    // ৭. রেসপন্স পাঠানো
+    sendResponse(res, {
+        success: true,
+        message: 'Game updated successfully!',
+        data: data,
+        statusCode: statusCode.OK
+    });
+});
+
+
+
+
 
 
 const allGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

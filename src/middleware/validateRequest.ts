@@ -10,7 +10,8 @@ export const validateRequest = (schema: ZodObject) => {
 
 
 
-      await schema.parseAsync(req.body);
+      const parsedData = await schema.parseAsync(req.body);
+      req.body = parsedData; 
 
 
       next();

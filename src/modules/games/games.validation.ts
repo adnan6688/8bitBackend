@@ -40,3 +40,73 @@ export const addGameZodSchema = z.object({
     isDiscount: z.coerce.boolean().optional(),
     disCountParcenTage: z.coerce.number().int().min(0).max(100).optional()
 });
+
+
+
+
+
+
+const GameStatusEnum = z.enum(["AVAILABLE", "UNAVAILABLE"]);
+const WeekDayEnum = z.enum(["SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]);
+
+export const updateGameZodSchema = z.object({
+    name: z.string()
+        .min(3, { message: "Name must be at least 3 characters long" })
+        .max(100, { message: "Name cannot exceed 100 characters" })
+        .optional(),
+
+    price: z.coerce.number()
+        .min(0, { message: "Price cannot be negative" })
+        .optional(),
+
+    description: z.string()
+        .min(10, { message: "Description must be at least 10 characters long" })
+        .optional(),
+
+    status: GameStatusEnum.optional(),
+
+    categoryId: z.string().optional(),
+
+    isDiscount: z.preprocess(
+        (val) => {
+            if (val === "false") return false;
+            if (val === "true") return true;
+            return val;
+        },
+        z.boolean({ message: "Discount status must be a boolean" })
+    ).optional(),
+
+    disCountParcenTage: z.coerce.number()
+        .int({ message: "Percentage must be a whole number" })
+        .min(0, { message: "Discount percentage cannot be less than 0" })
+        .max(100, { message: "Discount percentage cannot exceed 100" })
+        .optional(),
+
+
+    schedules: z.preprocess((val) => {
+        // যদি ফ্রন্টএন্ড বা পোস্টম্যান থেকে স্ট্রিং আসে, সেটাকে অবজেক্ট অ্যারেতে পার্স করো
+        if (typeof val === "string") {
+            try {
+                return JSON.parse(val);
+            } catch {
+                return val;
+            }
+        }
+        return val;
+    }, z.array(
+        z.object({
+            id: z.string().optional(), // আইডি অপশনাল রাখুন কারণ নতুন শিডিউলে আইডি থাকবে না
+            day: WeekDayEnum,
+            openTime: z.string(),
+            endTime: z.string()
+        })
+    )).optional()
+}).refine((data) => {
+    if (data.isDiscount === true && (data.disCountParcenTage === undefined || data.disCountParcenTage === 0)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "If discount is active, discount percentage must be provided and greater than 0",
+    path: ["disCountParcenTage"],
+});
