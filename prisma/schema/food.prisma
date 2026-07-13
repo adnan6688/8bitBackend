@@ -12,6 +12,7 @@ model Food {
 
     isDisCount         Boolean @default(false)
     disCountParcentage Int?
+    discountPrice Int?
 
     createdById String
     creadtedBy  User   @relation(fields: [createdById], references: [id], onDelete: Cascade)

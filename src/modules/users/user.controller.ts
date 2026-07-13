@@ -61,6 +61,7 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 const getAllUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+     
 })
 
 

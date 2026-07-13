@@ -9,6 +9,7 @@ import helmet from 'helmet'
 import { authRoutes } from './modules/auth/auth.route'
 import { gamesRoute } from './modules/games/games.route'
 import { categoryRoutes } from './modules/cetegory/cetegory.route'
+import { foodsRoute } from './modules/foods/foods.route'
 const app: Application = express()
 
 
@@ -31,7 +32,8 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/user', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/games', gamesRoute)
-app.use('/api/category',categoryRoutes)
+app.use('/api/category', categoryRoutes)
+app.use('/api/foods', foodsRoute)
 
 
 

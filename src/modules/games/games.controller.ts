@@ -61,6 +61,8 @@ const addGames = catchAsync(async (req: Request, res: Response, next: NextFuncti
     }
     const game = await gameService.addGames(gameData)
 
+
+    
     sendResponse(res, {
         success: true,
         data: game,
