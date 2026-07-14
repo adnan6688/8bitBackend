@@ -5,80 +5,47 @@ import { IGamePayload } from "./games.interface"
 
 const addGames = async (payload: IGamePayload) => {
 
-    const { schedules, ...gameFields } = payload
+    const { schedules, ...gameFields } = payload;
 
-    // game_schedule 
-    const transection = await prisma.$transaction(async (tx) => {
-
-
+    const transaction = await prisma.$transaction(async (tx) => {
         const game = await tx.game.create({
             data: {
-                ...gameFields,
+                name: gameFields.name,
+                price30Min: gameFields.price30Min, 
+                price60Min: gameFields.price60Min,
+                description: gameFields.description,
+                categoryId: gameFields.categoryId,
+                createdById: gameFields.createdById,
+                images: gameFields.images,
+                status: gameFields.status,
+                isDiscount: gameFields.isDiscount || false,
+                disCountParcenTage: gameFields.disCountParcenTage || null,
+                
+            
                 schedules: {
                     createMany: {
-                        data: schedules
+                        data: schedules 
                     }
                 }
             },
             include: {
-                schedules: true
-            }
-        })
-
-        return game
-
-
-    })
-    return transection
-}
-
-
-const updateGames = async (payLoad: any, gameId: string) => {
-    const { schedules, ...gameData } = payLoad;
-
-    console.log(schedules)
-
-    const result = await prisma.$transaction(async (tx) => {
-
-
-        if (schedules) {
-            await tx.gameSchedule.deleteMany({
-                where: { gameId: gameId }
-            });
-        }
-
-
-        const updatedGame = await tx.game.update({
-            where: { id: gameId },
-            data: {
-                ...gameData,
-                ...(schedules && {
-                    schedules: {
-                        create: schedules.map((schedule: any) => ({
-                            day: schedule.day,
-                            openTime: schedule.openTime,
-                            endTime: schedule.endTime
-                        }))
-                    }
-                })
-            },
-            include: {
-                schedules: true
+                schedules: true 
             }
         });
 
-        return updatedGame;
+        return game;
     });
 
-    return result;
+    return transaction;
 };
+
 
 
 const updateGamesNew = async (payLoad: any, gameId: string) => {
     const { schedules, ...gameData } = payLoad;
 
     const result = await prisma.$transaction(async (tx) => {
-        
+
         if (schedules && Array.isArray(schedules)) {
             // ১. ইনকামিং রিকোয়েস্টে কোন কোন দিন (Days) পাঠানো হয়েছে তাদের একটা লিস্ট বের করি
             // উদাহরণ: ['FRIDAY']
@@ -127,7 +94,7 @@ const updateGamesNew = async (payLoad: any, gameId: string) => {
             }
         }
 
-        // মেইন গেম টেবিলের ডেটা আপডেট
+
         const updatedGame = await tx.game.update({
             where: { id: gameId },
             data: { ...gameData },
@@ -141,8 +108,6 @@ const updateGamesNew = async (payLoad: any, gameId: string) => {
 };
 
 const gamesDetails = async (id: string) => {
-
-
     const ckgame = await prisma.game.findUnique({
         where: {
             id
@@ -150,14 +115,34 @@ const gamesDetails = async (id: string) => {
         include: {
             schedules: true
         }
-    })
+    });
 
     if (!ckgame) {
-        throw new Error('This game not found!')
+        throw new Error('This game not found!');
     }
 
-    return ckgame
-}
+  
+    const gameData = { ...ckgame };
+
+
+    if (gameData.isDiscount && gameData.disCountParcenTage && gameData.disCountParcenTage > 0) {
+        const percentage = gameData.disCountParcenTage;
+
+
+        const discountPrice30Min = gameData.price30Min - (gameData.price30Min * percentage / 100);
+        const discountPrice60Min = gameData.price60Min - (gameData.price60Min * percentage / 100);
+
+
+        return {
+            ...gameData,
+            discountPrice30Min: Number(discountPrice30Min.toFixed(2)), 
+            discountPrice60Min: Number(discountPrice60Min.toFixed(2))
+        };
+    }
+
+    
+    return gameData;
+};
 
 const allGames = async (options: any, searchTerm?: string) => {
 
@@ -228,7 +213,6 @@ const allGames = async (options: any, searchTerm?: string) => {
         data: gameData
     };
 }
-
 
 export const gameService = {
     addGames,

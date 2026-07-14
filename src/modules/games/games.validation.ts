@@ -8,20 +8,24 @@ const scheduleSchema = z.object({
 });
 
 
+
+
 export const addGameZodSchema = z.object({
     name: z.string({ message: "Game name is required" })
         .min(4, { message: "Name must be at least 4 characters long" })
         .max(50, { message: "Name cannot exceed 50 characters" }),
 
-    price: z.coerce.number({ message: "Price is required" })
-        .min(20, { message: "Price must be at least 20" }),
+    price30Min: z.coerce.number({ message: "Price for 30 minutes is required" })
+        .min(0, { message: "Price cannot be negative" }),
+
+    price60Min: z.coerce.number({ message: "Price for 60 minutes is required" })
+        .min(0, { message: "Price cannot be negative" }),
 
     description: z.string({ message: "Description is required" })
         .min(10, { message: "Description must be at least 10 characters long" })
         .max(500, { message: "Description cannot exceed 500 characters" }),
 
     categoryId: z.string({ message: "Category ID is required" }),
-
 
     images: z.array(z.string()).optional(),
 
@@ -37,11 +41,11 @@ export const addGameZodSchema = z.object({
             z.array(scheduleSchema)
                 .min(1, { message: "At least one day's schedule must be provided" })
         ),
+
     isDiscount: z.coerce.boolean().optional(),
-    disCountParcenTage: z.coerce.number().int().min(0).max(100).optional()
+    disCountParcenTage: z.coerce.number().int().min(0).max(100).optional(),
+    disCountPrice: z.coerce.number().optional()
 });
-
-
 
 
 
@@ -49,13 +53,20 @@ export const addGameZodSchema = z.object({
 const GameStatusEnum = z.enum(["AVAILABLE", "UNAVAILABLE"]);
 const WeekDayEnum = z.enum(["SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]);
 
+
+
 export const updateGameZodSchema = z.object({
     name: z.string()
         .min(3, { message: "Name must be at least 3 characters long" })
         .max(100, { message: "Name cannot exceed 100 characters" })
         .optional(),
 
-    price: z.coerce.number()
+
+    price30Min: z.coerce.number()
+        .min(0, { message: "Price cannot be negative" })
+        .optional(),
+
+    price60Min: z.coerce.number()
         .min(0, { message: "Price cannot be negative" })
         .optional(),
 
@@ -82,9 +93,7 @@ export const updateGameZodSchema = z.object({
         .max(100, { message: "Discount percentage cannot exceed 100" })
         .optional(),
 
-
     schedules: z.preprocess((val) => {
-        // যদি ফ্রন্টএন্ড বা পোস্টম্যান থেকে স্ট্রিং আসে, সেটাকে অবজেক্ট অ্যারেতে পার্স করো
         if (typeof val === "string") {
             try {
                 return JSON.parse(val);
@@ -95,7 +104,7 @@ export const updateGameZodSchema = z.object({
         return val;
     }, z.array(
         z.object({
-            id: z.string().optional(), // আইডি অপশনাল রাখুন কারণ নতুন শিডিউলে আইডি থাকবে না
+            id: z.string().optional(),
             day: WeekDayEnum,
             openTime: z.string(),
             endTime: z.string()

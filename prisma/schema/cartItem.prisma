@@ -1,13 +1,12 @@
 model CartITem {
     id       String @id @default(ulid())
-    quantity Int    @default(1)
+
+    quantity Int?   @default(1)
+
 
     cartId String
     cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
-    gameId String?
-    game   Game?   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-
+ 
     foodId String?
     food   Food?   @relation(fields: [foodId], references: [id], onDelete: Cascade)
 

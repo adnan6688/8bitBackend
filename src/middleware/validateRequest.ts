@@ -11,7 +11,7 @@ export const validateRequest = (schema: ZodObject) => {
 
 
       const parsedData = await schema.parseAsync(req.body);
-      req.body = parsedData; 
+      req.body = parsedData;
 
 
       next();

@@ -56,6 +56,6 @@ export const GlobalErrorHandler = (err: any, req: Request, res: Response, next: 
         statusCode: statusCode || httpStatusCode.INTERNAL_SERVER_ERROR,
         message: errorMessage,
         name: errorName,
-        error: errorDetails
+        // error: errorDetails
     })
 }

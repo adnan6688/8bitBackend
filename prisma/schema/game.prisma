@@ -1,16 +1,19 @@
 model Game {
     id String @id @default(ulid())
+    name String @db.VarChar(50)
 
-    name               String     @db.VarChar(50)
-    price              Float
-    images             String[]
-    description        String     @db.VarChar(500)
-    status             GameStatus @default(AVAILABLE)
-    createdAt          DateTime   @default(now())
-    updatedAt          DateTime   @updatedAt
-    isDiscount         Boolean    @default(false)
+  price30Min  Float    @default(0)
+    price60Min  Float    @default(0)
+
+    images      String[]
+    description String     @db.VarChar(500)
+    status      GameStatus @default(AVAILABLE)
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+
+    isDiscount         Boolean @default(false)
     disCountParcenTage Int?
-    disCountPrice      Float?
+
 
     categoryId String
     category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -20,7 +23,7 @@ model Game {
 
     // relations 
     schedules GameSchedule[]
-    CartItems CartITem[]
+
 
     @@index([categoryId])
     @@index([createdById])
