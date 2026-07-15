@@ -33,3 +33,10 @@ enum GameStatus {
     AVAILABLE
     UNAVAILABLE
 }
+
+
+enum BookingStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+}

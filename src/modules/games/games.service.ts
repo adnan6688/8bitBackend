@@ -11,7 +11,7 @@ const addGames = async (payload: IGamePayload) => {
         const game = await tx.game.create({
             data: {
                 name: gameFields.name,
-                price30Min: gameFields.price30Min, 
+                price30Min: gameFields.price30Min,
                 price60Min: gameFields.price60Min,
                 description: gameFields.description,
                 categoryId: gameFields.categoryId,
@@ -20,16 +20,16 @@ const addGames = async (payload: IGamePayload) => {
                 status: gameFields.status,
                 isDiscount: gameFields.isDiscount || false,
                 disCountParcenTage: gameFields.disCountParcenTage || null,
-                
-            
+
+
                 schedules: {
                     createMany: {
-                        data: schedules 
+                        data: schedules
                     }
                 }
             },
             include: {
-                schedules: true 
+                schedules: true
             }
         });
 
@@ -107,6 +107,8 @@ const updateGamesNew = async (payLoad: any, gameId: string) => {
     return result;
 };
 
+
+
 const gamesDetails = async (id: string) => {
     const ckgame = await prisma.game.findUnique({
         where: {
@@ -121,7 +123,7 @@ const gamesDetails = async (id: string) => {
         throw new Error('This game not found!');
     }
 
-  
+
     const gameData = { ...ckgame };
 
 
@@ -135,14 +137,15 @@ const gamesDetails = async (id: string) => {
 
         return {
             ...gameData,
-            discountPrice30Min: Number(discountPrice30Min.toFixed(2)), 
+            discountPrice30Min: Number(discountPrice30Min.toFixed(2)),
             discountPrice60Min: Number(discountPrice60Min.toFixed(2))
         };
     }
 
-    
+
     return gameData;
 };
+
 
 const allGames = async (options: any, searchTerm?: string) => {
 

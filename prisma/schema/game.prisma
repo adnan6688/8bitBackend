@@ -23,6 +23,7 @@ model Game {
 
     // relations 
     schedules GameSchedule[]
+    bookings GameBooking[]
 
 
     @@index([categoryId])

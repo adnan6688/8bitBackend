@@ -1,0 +1,19 @@
+model GameBooking {
+    id String @id @default(ulid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    gameId String
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+    startTime   DateTime
+    durationMin Int
+    status      BookingStatus @default(PENDING)
+
+
+    expiresAt DateTime?
+    createdAt DateTime @default(now())
+
+    @@index([startTime])
+}

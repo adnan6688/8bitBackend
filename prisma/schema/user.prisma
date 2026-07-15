@@ -19,4 +19,6 @@ model User {
     games      Game[]
     foods      Food[]
     cart       Cart?
+
+    gameBookings GameBooking[]
 }
