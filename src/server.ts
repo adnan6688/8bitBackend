@@ -3,6 +3,7 @@ import config from "./config";
 import { prisma } from "./lib/prisma";
 import { Server } from 'http';
 import { seedAdmin } from "./utils/seedAdmin";
+import { startBookingWorker } from "./modules/gamebooking/bookingWorker";
 
 let server: Server;
 
@@ -25,9 +26,12 @@ async function main() {
 }
 
 
+
+
 (async () => {
     main()
     await seedAdmin()
+    startBookingWorker(); //
 })();
 
 

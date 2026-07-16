@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import { prisma } from "../../lib/prisma";
-import { BookingStatus } from "../../../generated/prisma/enums";
+import { BookingGameStatus, BookingStatus } from "../../../generated/prisma/enums";
 
 
 const redisConnection = process.env.REDIS_URL
@@ -10,45 +10,65 @@ const redisConnection = process.env.REDIS_URL
         port: Number(process.env.REDIS_PORT || 6379),
     };
 
+
+
+
 export const startBookingWorker = () => {
+
     const worker = new Worker(
-        "booking-updates",
+        "booking-lifecycle",
         async (job) => {
+
+            console.log("worker working...")
             const { bookingId } = job.data as { bookingId: string };
 
             const booking = await prisma.gameBooking.findUnique({
-                where: { id: bookingId },
-                select: { id: true, status: true },
+                where: { id: bookingId }
             });
 
-            if (!booking) {
+            // বুকing না থাকলে বা বুকিং যদি ক্যানসেল হয়ে যায়, তবে গেম স্টার্ট করার দরকার নেই
+            if (!booking || booking.status === BookingStatus.CANCELLED) {
+                console.log(`[Worker] Booking ${bookingId} is cancelled or not found. Skipping.`);
                 return;
             }
 
-            if ((booking.status as string) === BookingStatus.CONFIRMED) {
-                return;
+            // ১. খেলা শুরু করার জব
+            if (job.name === "start-game") {
+                console.log("job : start game", job.name)
+                if (booking.status === BookingStatus.CONFIRMED && booking.gameStatus === BookingGameStatus.NOT_STARTED) {
+                    await prisma.gameBooking.update({
+                        where: {
+                            id: bookingId,
+                            status: BookingStatus.CONFIRMED,
+                            gameStatus: BookingGameStatus.NOT_STARTED
+                        },
+                        data: { gameStatus: BookingGameStatus.IN_PROGRESS }
+                    });
+                    console.log(`[Worker] Game is now LIVE for Booking: ${bookingId}`);
+                }
             }
 
-            await prisma.gameBooking.update({
-                where: { id: bookingId },
-                data: {
-                    status: BookingStatus.CONFIRMED as any,
-                },
-            });
+            // ২. খেলা শেষ করার জব
+            if (job.name === "end-game") {
+                console.log("job : end game", job.name)
+                if (booking.gameStatus === BookingGameStatus.IN_PROGRESS) {
+                    await prisma.gameBooking.update({
+                        where: { id: bookingId },
+                        data: { gameStatus: BookingGameStatus.ENDED }
+                    });
+                    console.log(`[Worker] Game has ENDED for Booking: ${bookingId}`);
+                }
+            }
         },
         {
-            connection: redisConnection,
+            connection: {
+                host: process.env.REDIS_HOST || "127.0.0.1",
+                port: Number(process.env.REDIS_PORT || 6379),
+                maxRetriesPerRequest: null,
+            },
             autorun: true,
         }
     );
-
-    worker.on("completed", (job) => {
-        console.log(`[booking-worker] completed: ${job.id}`);
-    });
-
-    worker.on("failed", (job, err) => {
-        console.error(`[booking-worker] failed: ${job?.id}`, err.message);
-    });
 
     return worker;
 };

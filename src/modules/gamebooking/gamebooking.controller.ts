@@ -3,9 +3,11 @@ import { catchAsync } from "../../utils/catchAsync";
 import { gameBookingService } from "./gamebooking.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from 'http-status'
+import { bookingQueue } from "./bookingQueue";
 const CreateGameBooking = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const userId = req.user?.id as string
+ 
 
     const result = await gameBookingService.CreateGameBooking(userId, req.body);
 

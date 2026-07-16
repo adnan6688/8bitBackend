@@ -1,32 +1,27 @@
-
-
-
 enum UserStatus {
-    ACTIVE 
+    ACTIVE
     INACTIVE
 }
 
 enum UserRole {
-    ADMIN 
+    ADMIN
     USER
     SUB_ADMIN
 }
 
-
 enum CatType {
-    FOOD 
+    FOOD
     GAME
 }
 
-
 enum WeekDay {
-  SATURDAY
-  SUNDAY
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
+    SATURDAY
+    SUNDAY
+    MONDAY
+    TUESDAY
+    WEDNESDAY
+    THURSDAY
+    FRIDAY
 }
 
 enum GameStatus {
@@ -34,9 +29,15 @@ enum GameStatus {
     UNAVAILABLE
 }
 
-
 enum BookingStatus {
     PENDING
     CONFIRMED
     CANCELLED
+}
+
+
+enum BookingGameStatus {
+    NOT_STARTED 
+    IN_PROGRESS 
+    ENDED 
 }

@@ -11,6 +11,7 @@ import { gamesRoute } from './modules/games/games.route'
 import { categoryRoutes } from './modules/cetegory/cetegory.route'
 import { foodsRoute } from './modules/foods/foods.route'
 import { cartRoutes } from './modules/cart/cart.route'
+import { gameBookingRoute } from './modules/gamebooking/gamebooking.route'
 const app: Application = express()
 
 
@@ -37,6 +38,7 @@ app.use('/api/games', gamesRoute)
 app.use('/api/category', categoryRoutes)
 app.use('/api/foods', foodsRoute)
 app.use('/api/cart' , cartRoutes)
+app.use('/api/booking',gameBookingRoute)
 
 
 
