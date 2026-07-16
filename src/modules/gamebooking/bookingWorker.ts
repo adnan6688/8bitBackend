@@ -32,7 +32,7 @@ export const startBookingWorker = () => {
                 return;
             }
 
-            // ১. খেলা শুরু করার জব
+
             if (job.name === "start-game") {
                 console.log("job : start game", job.name)
                 if (booking.status === BookingStatus.CONFIRMED && booking.gameStatus === BookingGameStatus.NOT_STARTED) {
@@ -48,7 +48,7 @@ export const startBookingWorker = () => {
                 }
             }
 
-            // ২. খেলা শেষ করার জব
+
             if (job.name === "end-game") {
                 console.log("job : end game", job.name)
                 if (booking.gameStatus === BookingGameStatus.IN_PROGRESS) {

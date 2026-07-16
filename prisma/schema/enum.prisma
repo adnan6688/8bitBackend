@@ -41,3 +41,9 @@ enum BookingGameStatus {
     IN_PROGRESS 
     ENDED 
 }
+
+enum GameDuration {
+  MIN_30
+  MIN_60
+  MIN_120
+}

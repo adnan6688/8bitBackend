@@ -1,18 +1,18 @@
 model GameBooking {
-    id     String @id @default(ulid())
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    gameId String
-    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    id          String   @id @default(ulid())
+    userId      String
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    gameId      String
+    game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-    startTime   DateTime //game start time
-    durationMin Int //30 , 60 , 120  min
+    startTime   DateTime 
+    durationMin Int      
 
-    status     BookingStatus     @default(PENDING) //payment status
-    gameStatus BookingGameStatus @default(NOT_STARTED)  //game status
+    status      BookingStatus     @default(PENDING) 
+    gameStatus  BookingGameStatus @default(NOT_STARTED)  
 
-    expiresAt DateTime? //game exiresTime
-    createdAt DateTime  @default(now())
+    expiresAt   DateTime 
+    createdAt   DateTime @default(now())
 
     @@index([startTime])
     @@index([status])

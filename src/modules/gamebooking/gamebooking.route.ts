@@ -15,4 +15,7 @@ route.post(
   gameBookingController.CreateGameBooking
 );
 
+route.get('/availableSlote' , validateRequest(gameBookingValidation.GetAvailableSlotsSchema) ,  gameBookingController.getAvailableSlots)
+
+
 export const gameBookingRoute = route;

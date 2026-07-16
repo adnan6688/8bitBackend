@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import { BookingStatus } from "../../../generated/prisma/enums";
 import { bookingQueue, scheduleGameLifecycleJobs } from "./bookingQueue";
 import { startBookingWorker } from "./bookingWorker";
+import { GetAvailableSlotsPayload } from "./gamebooking.interface";
 
 // Redis Client Setup
 const redisClient = createClient({ url: "redis://localhost:6379" });
@@ -11,14 +12,22 @@ redisClient.connect().catch(console.error);
 
 startBookingWorker();
 
-const CreateGameBooking = async (userId: string, payload: { gameId: string; startTime: string; durationMin: number }) => {
+
+type Tpayload = {
+    gameId: string,
+    startTime: string,
+    durationMin: 15 | 30 | 45 | 60
+}
+
+
+const CreateGameBooking = async (userId: string, payload: Tpayload) => {
     const { gameId, startTime, durationMin } = payload;
 
 
 
     const requestedStart = new Date(startTime);
     const requestedEnd = new Date(requestedStart.getTime() + durationMin * 60 * 1000);
-   
+
 
     const overlappingBooking = await prisma.gameBooking.findFirst({
         where: {
@@ -80,6 +89,76 @@ const CreateGameBooking = async (userId: string, payload: { gameId: string; star
     return newBooking;
 };
 
+
+const getAvailableSlots = async (payload: GetAvailableSlotsPayload) => {
+    const { gameId, date, durationMin } = payload; 
+
+    const startOfDay = new Date(`${date}T00:00:00.000Z`);
+    const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+    const existingBookings = await prisma.gameBooking.findMany({
+        where: {
+            gameId,
+            status: BookingStatus.CONFIRMED,
+            startTime: { gte: startOfDay, lte: endOfDay }
+        },
+        select: {
+            startTime: true,
+            expiresAt: true,
+            durationMin: true 
+        },
+        orderBy: { startTime: 'asc' }
+    });
+
+    const businessStart = new Date(`${date}T08:00:00+06:00`); // BD Local Time 08:00 AM
+    const businessEnd = new Date(`${date}T22:00:00+06:00`);   // BD Local Time 10:00 PM
+
+    const availableSlots = [];
+    let currentSlotStart = new Date(businessStart);
+
+    while (currentSlotStart.getTime() + durationMin * 60 * 1000 <= businessEnd.getTime()) {
+        const currentSlotEnd = new Date(currentSlotStart.getTime() + durationMin * 60 * 1000);
+        const now = new Date();
+        const isFuture = currentSlotStart > now;
+
+        const isOverlapping = existingBookings.some(booking => {
+            const bookedStart = new Date(booking.startTime);
+            const bookedEnd = booking.expiresAt 
+                ? new Date(booking.expiresAt) 
+                : new Date(bookedStart.getTime() + (booking as any).durationMin * 60 * 1000);
+
+            return currentSlotStart < bookedEnd && currentSlotEnd > bookedStart;
+        });
+
+        if (isFuture && !isOverlapping) {
+            const formatTime = (date: Date) =>
+                date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true, 
+                    timeZone: 'Asia/Dhaka' 
+                });
+
+            availableSlots.push({
+                display: `${formatTime(currentSlotStart)} - ${formatTime(currentSlotEnd)}`,
+                startTime: currentSlotStart.toISOString(),
+                endTime: currentSlotEnd.toISOString()
+            });
+        }
+
+        currentSlotStart = new Date(currentSlotStart.getTime() + 15 * 60 * 1000);
+    }
+
+    return availableSlots;
+};
+
 export const gameBookingService = {
     CreateGameBooking,
+    getAvailableSlots
 };
+
+
+
+
+
+
