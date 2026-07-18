@@ -6,7 +6,14 @@ model GameBooking {
     game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
     startTime   DateTime 
-    durationMin Int      
+    durationMin Int    
+
+
+    
+    totalAmount         Decimal           @default(0.00) 
+    merchantTransactionId String?         @unique       
+    transactionId       String?           @unique       
+    paymentMethod       String?          
 
     status      BookingStatus     @default(PENDING) 
     gameStatus  BookingGameStatus @default(NOT_STARTED)  

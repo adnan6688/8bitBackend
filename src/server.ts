@@ -4,6 +4,7 @@ import { prisma } from "./lib/prisma";
 import { Server } from 'http';
 import { seedAdmin } from "./utils/seedAdmin";
 import { startBookingWorker } from "./modules/gamebooking/bookingWorker";
+import { generateHash } from "./utils/Payments/generateHashKey";
 
 let server: Server;
 
@@ -13,6 +14,12 @@ async function main() {
         console.log('Connected to the database successfully!');
 
 
+        // const xHashHeaderValue = generateHash(
+        //     config.EPS_HASH_KEY as string,    // ১ম প্যারামিটার: Secret Hash Key
+        //     config.EPS_USER_NAME as string   // ২য় প্যারামিটার: Data (userName)
+        // );
+
+        // console.log("Generated x-hash:", xHashHeaderValue);
 
         server = app.listen(config.port, () => {
             console.log(`Server running on port ${config.port}`);

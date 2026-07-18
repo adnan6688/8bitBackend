@@ -8,6 +8,7 @@ import { prisma } from "../../lib/prisma";
 
 const addGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+
     if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
         throw new Error('At least one game image is required!')
     }
@@ -16,7 +17,7 @@ const addGames = catchAsync(async (req: Request, res: Response, next: NextFuncti
         throw new Error('Discount percentage is required when isDiscount is true!');
     }
 
-
+  
 
     const { name } = req.body;
     const isGameExist = await prisma.game.findFirst({
@@ -26,14 +27,19 @@ const addGames = catchAsync(async (req: Request, res: Response, next: NextFuncti
         throw new Error("This game already exists! Choose a different name.")
     }
 
+   
     const files = req.files as Express.Multer.File[];
     const imageUrls: string[] = [];
 
 
+
     for (const file of files) {
+        console.log("cloudinary")
         const uploadResult = await cloudinaryUpload(file.buffer);
         imageUrls.push(uploadResult.secure_url);
+        console.log("files")
     }
+
     const gameData = {
         ...req.body,
         images: imageUrls,
@@ -59,6 +65,8 @@ const addGames = catchAsync(async (req: Request, res: Response, next: NextFuncti
     if (typeof gameData.schedules === 'string') {
         gameData.schedules = JSON.parse(gameData.schedules);
     }
+
+    console.log("game add", gameData)
     const game = await gameService.addGames(gameData)
 
 
@@ -155,6 +163,7 @@ const updateGames = catchAsync(async (req: Request, res: Response, next: NextFun
 
 
 const allGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
     const searchTerm = req?.query?.searchTerm as string
 
     const options = {

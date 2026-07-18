@@ -1,5 +1,7 @@
+import config from "../../config";
 import { prisma } from "../../lib/prisma"
 import { calculatePagination } from "../../utils/calculatePegination"
+import { generateHash } from "../../utils/Payments/generateHashKey";
 import { IGamePayload } from "./games.interface"
 
 
@@ -149,6 +151,8 @@ const gamesDetails = async (id: string) => {
 
 const allGames = async (options: any, searchTerm?: string) => {
 
+
+   
 
     const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options)
 

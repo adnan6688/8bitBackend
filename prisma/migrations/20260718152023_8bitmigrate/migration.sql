@@ -13,6 +13,15 @@ CREATE TYPE "WeekDay" AS ENUM ('SATURDAY', 'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNE
 -- CreateEnum
 CREATE TYPE "GameStatus" AS ENUM ('AVAILABLE', 'UNAVAILABLE');
 
+-- CreateEnum
+CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'PAID', 'UNPAID', 'CANCELLED', 'FAILED');
+
+-- CreateEnum
+CREATE TYPE "BookingGameStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'ENDED');
+
+-- CreateEnum
+CREATE TYPE "GameDuration" AS ENUM ('MIN_30', 'MIN_60', 'MIN_120');
+
 -- CreateTable
 CREATE TABLE "Cart" (
     "id" TEXT NOT NULL,
@@ -25,9 +34,8 @@ CREATE TABLE "Cart" (
 -- CreateTable
 CREATE TABLE "CartITem" (
     "id" TEXT NOT NULL,
-    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "quantity" INTEGER DEFAULT 1,
     "cartId" TEXT NOT NULL,
-    "gameId" TEXT,
     "foodId" TEXT,
 
     CONSTRAINT "CartITem_pkey" PRIMARY KEY ("id")
@@ -40,6 +48,7 @@ CREATE TABLE "Category" (
     "name" VARCHAR(40) NOT NULL,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "createdById" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -57,6 +66,7 @@ CREATE TABLE "Food" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "isDisCount" BOOLEAN NOT NULL DEFAULT false,
     "disCountParcentage" INTEGER,
+    "discountPrice" INTEGER,
     "createdById" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
 
@@ -67,7 +77,8 @@ CREATE TABLE "Food" (
 CREATE TABLE "Game" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(50) NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
+    "price30Min" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "price60Min" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "images" TEXT[],
     "description" VARCHAR(500) NOT NULL,
     "status" "GameStatus" NOT NULL DEFAULT 'AVAILABLE',
@@ -93,6 +104,25 @@ CREATE TABLE "GameSchedule" (
 );
 
 -- CreateTable
+CREATE TABLE "GameBooking" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "gameId" TEXT NOT NULL,
+    "startTime" TIMESTAMP(3) NOT NULL,
+    "durationMin" INTEGER NOT NULL,
+    "totalAmount" DECIMAL(65,30) NOT NULL DEFAULT 0.00,
+    "merchantTransactionId" TEXT,
+    "transactionId" TEXT,
+    "paymentMethod" TEXT,
+    "status" "BookingStatus" NOT NULL DEFAULT 'PENDING',
+    "gameStatus" "BookingGameStatus" NOT NULL DEFAULT 'NOT_STARTED',
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GameBooking_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
@@ -102,6 +132,7 @@ CREATE TABLE "User" (
     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
     "role" "UserRole" NOT NULL DEFAULT 'USER',
     "image" TEXT,
+    "publicId" TEXT,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "phone" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,6 +146,9 @@ CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");
 
 -- CreateIndex
 CREATE INDEX "CartITem_cartId_idx" ON "CartITem"("cartId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_type_name_key" ON "Category"("type", "name");
 
 -- CreateIndex
 CREATE INDEX "Food_isDisCount_idx" ON "Food"("isDisCount");
@@ -135,6 +169,21 @@ CREATE INDEX "GameSchedule_gameId_idx" ON "GameSchedule"("gameId");
 CREATE INDEX "GameSchedule_day_idx" ON "GameSchedule"("day");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "GameBooking_merchantTransactionId_key" ON "GameBooking"("merchantTransactionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GameBooking_transactionId_key" ON "GameBooking"("transactionId");
+
+-- CreateIndex
+CREATE INDEX "GameBooking_startTime_idx" ON "GameBooking"("startTime");
+
+-- CreateIndex
+CREATE INDEX "GameBooking_status_idx" ON "GameBooking"("status");
+
+-- CreateIndex
+CREATE INDEX "GameBooking_gameStatus_idx" ON "GameBooking"("gameStatus");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
@@ -145,9 +194,6 @@ ALTER TABLE "Cart" ADD CONSTRAINT "Cart_userId_fkey" FOREIGN KEY ("userId") REFE
 
 -- AddForeignKey
 ALTER TABLE "CartITem" ADD CONSTRAINT "CartITem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CartITem" ADD CONSTRAINT "CartITem_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CartITem" ADD CONSTRAINT "CartITem_foodId_fkey" FOREIGN KEY ("foodId") REFERENCES "Food"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -169,3 +215,9 @@ ALTER TABLE "Game" ADD CONSTRAINT "Game_createdById_fkey" FOREIGN KEY ("createdB
 
 -- AddForeignKey
 ALTER TABLE "GameSchedule" ADD CONSTRAINT "GameSchedule_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GameBooking" ADD CONSTRAINT "GameBooking_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GameBooking" ADD CONSTRAINT "GameBooking_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE CASCADE ON UPDATE CASCADE;

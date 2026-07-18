@@ -30,9 +30,11 @@ enum GameStatus {
 }
 
 enum BookingStatus {
-    PENDING
-    CONFIRMED
-    CANCELLED
+    PENDING       
+    PAID          
+    UNPAID        
+    CANCELLED     
+    FAILED        
 }
 
 

@@ -4,9 +4,9 @@ import multer from "multer";
 
 
 cloudinary.config({
-    cloud_name: config.cloude_name || 'dcysqts5g',
-    api_key: config.cloude_api_key || '431319642879813',
-    api_secret: config.cloude_secret_key || 'dokGvb1RgdeM7wlQ7z71sZl0PkM'
+    cloud_name: config.cloude_name ,
+    api_key: config.cloude_api_key ,
+    api_secret: config.cloude_secret_key
 });
 
 

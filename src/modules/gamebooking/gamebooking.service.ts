@@ -33,7 +33,7 @@ const CreateGameBooking = async (userId: string, payload: Tpayload) => {
         where: {
             gameId: gameId,
             status: {
-                in: [BookingStatus.CONFIRMED]
+                in: [BookingStatus.PAID]
             },
             startTime: { lt: requestedEnd },
             expiresAt: { gt: requestedStart }
@@ -99,7 +99,7 @@ const getAvailableSlots = async (payload: GetAvailableSlotsPayload) => {
     const existingBookings = await prisma.gameBooking.findMany({
         where: {
             gameId,
-            status: BookingStatus.CONFIRMED,
+            status: BookingStatus.PAID,
             startTime: { gte: startOfDay, lte: endOfDay }
         },
         select: {

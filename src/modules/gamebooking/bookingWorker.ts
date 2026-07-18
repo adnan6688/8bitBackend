@@ -35,11 +35,11 @@ export const startBookingWorker = () => {
 
             if (job.name === "start-game") {
                 console.log("job : start game", job.name)
-                if (booking.status === BookingStatus.CONFIRMED && booking.gameStatus === BookingGameStatus.NOT_STARTED) {
+                if (booking.status === BookingStatus.PAID && booking.gameStatus === BookingGameStatus.NOT_STARTED) {
                     await prisma.gameBooking.update({
                         where: {
                             id: bookingId,
-                            status: BookingStatus.CONFIRMED,
+                            status: BookingStatus.PAID,
                             gameStatus: BookingGameStatus.NOT_STARTED
                         },
                         data: { gameStatus: BookingGameStatus.IN_PROGRESS }
