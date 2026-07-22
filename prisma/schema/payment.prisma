@@ -26,9 +26,9 @@ model Payment {
     transactionTypeId Int @default(1) // 1 = Web, 2 = Android, 3 = iOS
 
     // customer information
-    customerName     String
-    customerEmail    String
-    customerPhone    String
+    customerName    String?
+    customerEmail    String?
+    customerPhone    String?
     customerAddress  String?
     customerCity     String?
     customerPostcode String?

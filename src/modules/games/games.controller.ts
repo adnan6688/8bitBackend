@@ -6,8 +6,12 @@ import { cloudinaryUpload } from "../../config/cloudinaryConfig";
 import { gameService } from "./games.service";
 import { prisma } from "../../lib/prisma";
 
-const addGames = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+const addGames = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+
+
+
     if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
       throw new Error("At least one game image is required!");
     }
@@ -29,6 +33,7 @@ const addGames = catchAsync(
     const files = req.files as Express.Multer.File[];
     const imageUrls: string[] = [];
     const upLoad_publicIds: string[] = [];
+
 
     for (const file of files) {
       const uploadResult = await cloudinaryUpload(file.buffer);
@@ -61,7 +66,8 @@ const addGames = catchAsync(
       gameData.schedules = JSON.parse(gameData.schedules);
     }
 
-    console.log("game add", gameData);
+
+
     const game = await gameService.addGames(gameData);
 
     sendResponse(res, {

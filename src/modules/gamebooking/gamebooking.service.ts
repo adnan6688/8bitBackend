@@ -24,6 +24,15 @@ const CreateGameBooking = async (userId: string, payload: Tpayload) => {
     const { gameId, startTime, durationMin } = payload;
 
 
+    const ckGame = await prisma.game.findUnique({
+        where : {
+            id : gameId 
+        }
+    })
+    if(!ckGame){
+        throw new Error('This game is not found!')
+    }
+
 
     const requestedStart = new Date(startTime);
     const requestedEnd = new Date(requestedStart.getTime() + durationMin * 60 * 1000);
@@ -60,22 +69,27 @@ const CreateGameBooking = async (userId: string, payload: Tpayload) => {
         NX: true,
         EX: expireInSeconds,
     });
-
-
-
     if (!isLocked) {
         throw new Error("SLOT_LOCKED_BY_ANOTHER_USER");
     }
 
 
-
     const expiresAt = new Date(new Date(startTime).getTime() + durationMin * 60 * 1000);
 
+
+    let totalAmount = 0;
+    if(Number(payload.durationMin) == 30){
+        totalAmount = ckGame.price30Min
+    }
+    else if(Number(payload.durationMin) == 60){
+        totalAmount = ckGame.price60Min
+    }
 
     const newBooking = await prisma.gameBooking.create({
         data: {
             userId,
             gameId,
+            totalAmount,
             startTime: new Date(startTime),
             durationMin,
             status: BookingStatus.PENDING,
