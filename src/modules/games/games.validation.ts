@@ -44,7 +44,7 @@ export const addGameZodSchema = z.object({
 
     isDiscount: z.coerce.boolean().optional(),
     disCountParcenTage: z.coerce.number().int().min(0).max(100).optional(),
-    disCountPrice: z.coerce.number().optional()
+    discountPrice: z.coerce.number().optional()
 });
 
 

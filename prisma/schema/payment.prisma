@@ -1,0 +1,44 @@
+model Payment {
+    id String @id @default(uuid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    paymentType PaymentType // Enum: FOOD, GAME
+
+    //   Polymorphic-style Optional Relations
+    //   foodOrderId          String?
+    //   foodOrder            FoodOrder?    @relation(fields: [foodOrderId], references: [id], onDelete: SetNull)
+
+    gameBookingId String?
+    gameBooking   GameBooking? @relation(fields: [gameBookingId], references: [id], onDelete: SetNull)
+
+    //  Payment Gateway core Info
+    amount        Float // totalAmount
+    paymentMethod String? // e.g., 'BKASH', 'NAGAD', 'CARD'
+
+    //  Unique IDs (Gateway Response & Verification)
+    merchantTxnId   String  @unique // merchantTransactonId (Every time unique)
+    customerOrderId String // CustomerOrderId like foodOrderId or gameBooking id
+    transactionId   String? @unique // Gateway provided final Transacton ID / Bank Txn ID
+
+    //  Device & Origin Info
+    transactionTypeId Int @default(1) // 1 = Web, 2 = Android, 3 = iOS
+
+    // customer information
+    customerName     String
+    customerEmail    String
+    customerPhone    String
+    customerAddress  String?
+    customerCity     String?
+    customerPostcode String?
+
+
+    valueA String?
+    valueB String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+}

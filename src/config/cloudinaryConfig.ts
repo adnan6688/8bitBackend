@@ -37,3 +37,17 @@ export const upload = multer({
         fileSize: 5 * 1024 * 1024 
     }
 });
+
+
+export const deleteFromCloudinary = async (publicIds: string[]) => {
+  if (!publicIds || publicIds.length === 0) return;
+
+  try {
+    for (const id of publicIds) {
+      await cloudinary.uploader.destroy(id);
+    }
+    console.log("Garbage images deleted from Cloudinary successfully!");
+  } catch (error) {
+    console.error("Failed to delete images from Cloudinary:", error);
+  }
+};

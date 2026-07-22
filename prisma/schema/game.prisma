@@ -1,11 +1,13 @@
 model Game {
-    id String @id @default(ulid())
+    id   String @id @default(ulid())
     name String @db.VarChar(50)
 
-  price30Min  Float    @default(0)
-    price60Min  Float    @default(0)
+    price30Min Float @default(0)
+    price60Min Float @default(0)
 
-    images      String[]
+    images           String[]
+    upLoad_publicIds String[]
+
     description String     @db.VarChar(500)
     status      GameStatus @default(AVAILABLE)
     createdAt   DateTime   @default(now())
@@ -13,7 +15,6 @@ model Game {
 
     isDiscount         Boolean @default(false)
     disCountParcenTage Int?
-
 
     categoryId String
     category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -23,8 +24,7 @@ model Game {
 
     // relations 
     schedules GameSchedule[]
-    bookings GameBooking[]
-
+    bookings  GameBooking[]
 
     @@index([categoryId])
     @@index([createdById])

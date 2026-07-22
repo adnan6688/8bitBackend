@@ -2,7 +2,7 @@
 import { createClient } from "redis";
 import { prisma } from "../../lib/prisma";
 import { BookingStatus } from "../../../generated/prisma/enums";
-import { bookingQueue, scheduleGameLifecycleJobs } from "./bookingQueue";
+import {  scheduleGameLifecycleJobs } from "./bookingQueue";
 import { startBookingWorker } from "./bookingWorker";
 import { GetAvailableSlotsPayload } from "./gamebooking.interface";
 

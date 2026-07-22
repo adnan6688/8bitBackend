@@ -49,3 +49,8 @@ enum GameDuration {
   MIN_60
   MIN_120
 }
+
+enum PaymentType {
+    FOOD 
+    GAME
+}

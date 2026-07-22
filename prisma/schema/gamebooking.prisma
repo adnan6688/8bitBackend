@@ -21,6 +21,8 @@ model GameBooking {
     expiresAt   DateTime 
     createdAt   DateTime @default(now())
 
+    payments Payment[]
+
     @@index([startTime])
     @@index([status])
     @@index([gameStatus])
