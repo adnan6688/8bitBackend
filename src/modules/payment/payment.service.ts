@@ -26,8 +26,8 @@ const getTokens = async (xHash: string) => {
     console.error("EPS Token Error:", error?.response?.data || error.message);
     throw new Error(
       error?.response?.data?.errorMessage ||
-      error?.response?.data?.message ||
-      "Failed to retrieve EPS Token!",
+        error?.response?.data?.message ||
+        "Failed to retrieve EPS Token!",
     );
   }
 };
@@ -41,16 +41,18 @@ const paymentInitialize = async (payloadData?: any) => {
   const tokenData = await getTokens(xHashHeaderValue);
   const token = tokenData?.token;
 
+  const merchantTxnId = await paymentMarcentId();
+
   try {
     const info = {
-      storeId: config.EPS_Store_Id, // আপনার config থেকে আসা Store ID
-      merchantTransactionId: String(paymentMarcentId()),
-      CustomerOrderId: String(payloadData?.bookingId) || "Orderf1256882",
+      storeId: config.EPS_Store_Id,
+      merchantTransactionId: merchantTxnId,
+      CustomerOrderId: String(payloadData?.bookingId),
       transactionTypeId: 10,
       financialEntityId: 0,
       transitionStatusId: 0,
-      totalAmount: payloadData?.totalAmount || 1,
-      ipAddress: "127.0.0.1", // ডাইনামিক করতে চাইলে req.ip পাস করতে পারেন
+      totalAmount: payloadData?.totalAmount || 99.99,
+      ipAddress: "127.0.0.1",
       version: "1.0",
 
       // Callback URLs
@@ -101,11 +103,10 @@ const paymentInitialize = async (payloadData?: any) => {
       ],
     };
 
-
-
-    const merchantTxnId = await paymentMarcentId();
-    // epsHashKey FHZxyzeps56789gfhg678ygu876o=
-    const initXHash = generateHash(config.EPS_HASH_KEY?.trim() as string,merchantTxnId);
+    const initXHash = generateHash(
+      config.EPS_HASH_KEY?.trim() as string,
+      info.merchantTransactionId,
+    );
 
     const response = await axios.post(
       "https://sandboxpgapi.eps.com.bd/v1/EPSEngine/InitializeEPS",
@@ -119,8 +120,6 @@ const paymentInitialize = async (payloadData?: any) => {
       },
     );
 
-    console.log("EPS Initialize Response:", response.data);
-
     return response.data;
   } catch (error: any) {
     console.error(
@@ -129,11 +128,9 @@ const paymentInitialize = async (payloadData?: any) => {
     );
     throw new Error(
       error?.response?.data?.message ||
-      "Failed to initialize EPS Payment Gateway!",
+        "Failed to initialize EPS Payment Gateway!",
     );
   }
-
-  console.log(token);
 };
 
 export const paymentSerivce = {
