@@ -20,7 +20,6 @@ const verifyToken = (token: string, secret: string) => {
             data: verifiedResult
         }
     } catch (err: any) {
-        console.log('Token verification failed', err)
         return {
             success: false,
             error: err.message
