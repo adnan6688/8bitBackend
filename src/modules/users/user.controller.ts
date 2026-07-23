@@ -71,6 +71,8 @@ const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction)
     const id = req.user?.id as string
     const email = req.user?.email as string
     const user = await userService.getMe(id, email)
+
+    
     sendResponse(res, {
         success: true,
         data: user,
